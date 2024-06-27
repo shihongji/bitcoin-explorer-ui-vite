@@ -1,18 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Block {
-  height: number;
-  hash: string;
-  time: number;
+  id: number;
+  block_height: number;
+  block_hash: string | null;
+  block_timestamp: number | null;
+  tx_count: number | null;
+  block_size: number | null;
 }
 
 const LatestBlocks: React.FC = () => {
-  // This is mock data. In a real application, you'd fetch this from your API
-  const blocks: Block[] = [
-    { height: 800000, hash: '000000000000000000046e8d...', time: 1687890123 },
-    { height: 799999, hash: '000000000000000000012a3b...', time: 1687889234 },
-    { height: 799998, hash: '000000000000000000098c7d...', time: 1687888345 },
-  ];
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBlocks = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/blockchain_metrics');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setBlocks(data);
+      } catch (error) {
+        setError('Failed to fetch blocks');
+        console.error('Fetch error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBlocks();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="mt-8">
@@ -20,22 +48,30 @@ const LatestBlocks: React.FC = () => {
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <ul className="divide-y divide-gray-200">
           {blocks.map((block) => (
-            <li key={block.height} className="px-4 py-4 sm:px-6">
+            <li key={block.id} className="px-4 py-4 sm:px-6">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-indigo-600 truncate">
-                  Block {block.height}
+                  Block {block.block_height}
                 </p>
                 <div className="ml-2 flex-shrink-0 flex">
                   <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {new Date(block.time * 1000).toLocaleString()}
+                    {block.block_timestamp 
+                      ? new Date(block.block_timestamp * 1000).toLocaleString()
+                      : 'Timestamp not available'}
                   </p>
                 </div>
               </div>
               <div className="mt-2 sm:flex sm:justify-between">
                 <div className="sm:flex">
                   <p className="flex items-center text-sm text-gray-500">
-                    {block.hash.substr(0, 20)}...
+                    {block.block_hash 
+                      ? `${block.block_hash.substr(20, 31)}...`
+                      : 'Hash not available'}
                   </p>
+                </div>
+                <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                  <span className="mr-2">Transactions: {block.tx_count ?? 'N/A'}</span>
+                  <span>Size: {block.block_size ? `${block.block_size} bytes` : 'N/A'}</span>
                 </div>
               </div>
             </li>
