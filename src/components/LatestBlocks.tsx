@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface Block {
   id: number;
@@ -14,25 +14,27 @@ const LatestBlocks: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchBlocks = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/blockchain_metrics');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setBlocks(data);
-      } catch (error) {
-        setError('Failed to fetch blocks');
-        console.error('Fetch error:', error);
-      } finally {
-        setIsLoading(false);
+  const fetchBlocks = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/blockchain_metrics");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
+      const data = await response.json();
+      setBlocks(data);
+    } catch (error) {
+      setError("Failed to fetch blocks");
+      console.error("Fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBlocks();
-  }, []);
+    const intervalId = setInterval(fetchBlocks, 20000);
+    return () => clearInterval(intervalId);
+  }, [fetchBlocks]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -55,23 +57,28 @@ const LatestBlocks: React.FC = () => {
                 </p>
                 <div className="ml-2 flex-shrink-0 flex">
                   <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {block.block_timestamp 
+                    {block.block_timestamp
                       ? new Date(block.block_timestamp * 1000).toLocaleString()
-                      : 'Timestamp not available'}
+                      : "Timestamp not available"}
                   </p>
                 </div>
               </div>
               <div className="mt-2 sm:flex sm:justify-between">
                 <div className="sm:flex">
                   <p className="flex items-center text-sm text-gray-500">
-                    {block.block_hash 
+                    {block.block_hash
                       ? `${block.block_hash.substr(20, 31)}...`
-                      : 'Hash not available'}
+                      : "Hash not available"}
                   </p>
                 </div>
                 <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                  <span className="mr-2">Transactions: {block.tx_count ?? 'N/A'}</span>
-                  <span>Size: {block.block_size ? `${block.block_size} bytes` : 'N/A'}</span>
+                  <span className="mr-2">
+                    Transactions: {block.tx_count ?? "N/A"}
+                  </span>
+                  <span>
+                    Size:{" "}
+                    {block.block_size ? `${block.block_size} bytes` : "N/A"}
+                  </span>
                 </div>
               </div>
             </li>
