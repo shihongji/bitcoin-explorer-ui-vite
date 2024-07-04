@@ -18,7 +18,11 @@ function BlockchainMetricsChart() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/blockchain_metrics`);
+      const response = await fetch(`${API_URL}/blockchain_metrics`, {
+        method: 'GET',
+        mode: 'cors',
+
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
