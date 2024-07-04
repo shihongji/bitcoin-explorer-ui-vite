@@ -8,7 +8,6 @@ interface Metric {
   connection_count: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function BlockchainMetricsChart() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -18,7 +17,7 @@ function BlockchainMetricsChart() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/blockchain_metrics`, {
+      const response = await fetch(`/blockchain_metrics`, {
         method: 'GET',
         mode: 'cors',
 

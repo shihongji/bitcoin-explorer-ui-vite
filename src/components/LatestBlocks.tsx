@@ -16,7 +16,7 @@ const LatestBlocks: React.FC = () => {
 
   const fetchBlocks = async () => {
     try {
-      const response = await fetch("http://localhost:3001/blockchain_metrics", {
+      const response = await fetch("/blockchain_metrics", {
         method: 'GET',
         mode: 'cors',
       });
