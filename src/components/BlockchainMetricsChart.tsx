@@ -8,7 +8,7 @@ interface Metric {
   connection_count: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://34.31.232.228:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function BlockchainMetricsChart() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
